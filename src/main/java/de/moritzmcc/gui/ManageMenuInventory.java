@@ -1,17 +1,19 @@
 package de.moritzmcc.gui;
 
 import de.moritzmcc.Utlis.ItemBuilder;
+import de.moritzmcc.mobspawn.MobspawnGui;
 import de.moritzmcc.pvp.PVPGui;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryMoveItemEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
 public class ManageMenuInventory implements Listener {
@@ -75,9 +77,53 @@ public class ManageMenuInventory implements Listener {
     public void onInventoryClick(InventoryClickEvent event){
 
         if (Arrays.equals(event.getInventory().getContents(), getManageInventory((Player) event.getWhoClicked()).getContents())) {
-            if (Objects.requireNonNull(Objects.requireNonNull(event.getCurrentItem()).getItemMeta()).getDisplayName().equals("PVP")) event.getWhoClicked().openInventory(new PVPGui().getPVPInventory());
+
+            Player player = ((Player) event.getWhoClicked());
+            World world = player.getWorld();
+
+            if (event.getCurrentItem().equals(new ItemBuilder(Material.PLAYER_HEAD).withName("PVP").build())) player.openInventory(new PVPGui().getPVPInventory());
+            if (event.getCurrentItem().equals(new ItemBuilder(getDifficultyMaterial(world)).withName("Difficulty " + Bukkit.getWorld(world.getUID()).getDifficulty()).build())){
+                manageDifficulty(world);
+                openManageInventory(player);
+            }
+            if (event.getCurrentItem().equals(new ItemBuilder(getGamemodeMaterial()).withName("GameMode " + Bukkit.getDefaultGameMode()).build())) {
+                manageDefaultGameMode();
+                openManageInventory(player);
+            }
+            if (event.getCurrentItem().equals(new ItemBuilder(Material.ZOMBIE_HEAD).withName("Mobspawn").build())){
+                player.openInventory(new MobspawnGui().getInventory());
+            }
             event.setCancelled(true);
+
         }
+    }
+
+
+    private void manageDifficulty(World world){
+        List<Difficulty> list = new ArrayList<>();
+        list.add(Difficulty.EASY);
+        list.add(Difficulty.NORMAL);
+        list.add(Difficulty.HARD);
+        list.add(Difficulty.PEACEFUL);
+        int difficultyIndex = list.indexOf(world.getDifficulty());
+        if (difficultyIndex == list.size() - 1) {
+            world.setDifficulty(list.get(0));
+        }else  world.setDifficulty(list.get(difficultyIndex + 1));
+
+    }
+    private void manageDefaultGameMode(){
+        List<GameMode> list = new ArrayList<>();
+        list.add(GameMode.SURVIVAL);
+        list.add(GameMode.CREATIVE);
+        list.add(GameMode.SPECTATOR);
+        list.add(GameMode.ADVENTURE);
+        Bukkit.broadcastMessage(list.toString());
+        int gmIndex = list.indexOf(Bukkit.getDefaultGameMode());
+        if (gmIndex == list.size() - 1) {
+            Bukkit.setDefaultGameMode(list.get(0));
+        }else Bukkit.setDefaultGameMode(list.get(gmIndex +1));
+
+
     }
 
 
