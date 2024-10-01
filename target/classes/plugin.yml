@@ -1,6 +1,0 @@
-name: WorldManage
-version: '1.0-SNAPSHOT'
-main: de.moritzmcc.worldmanage.Main
-api-version: '1.21'
-commands:
-  manage:
