@@ -1,0 +1,8 @@
+# Ignoriere den Target-Ordner
+target/
+
+# Ignoriere die pom.xml
+pom.xml
+
+# Ignoriere alle .iml-Dateien
+*.iml
